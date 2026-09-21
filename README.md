@@ -4,6 +4,25 @@ A multi-language, local-workspace desktop app for Jev-assisted security triage.
 Built with Rust, Tauri 2, React and TypeScript. No AST and no execution of
 repository code, build scripts, hooks or dependencies.
 
+## Why
+
+Conventional SAST encodes vulnerability knowledge as semantic rules: queries and
+patterns hand-written per language, framework, and weakness class. That works
+well for syntax-shaped bugs and badly for judgment-shaped ones — whether
+attacker-controlled data reaches a sink unsafely depends on the value's origin,
+the branch that selected it, the wrapper around it, and whether the defense
+protects the *actual* use. Encoding that as rules is where SAST gets expensive.
+
+Jev is a general-purpose classifier, not a code model: it evaluates structured
+state against typed questions and returns probabilities, so it can supply the
+semantic judgment a rule would otherwise have to encode. JAST keeps every
+deterministic mechanic in Rust — inventory, region bounds, hashing, consent,
+persistence — and asks Jev explicit, human-reviewable questions with explicit
+criteria instead of shipping a rule library. The result is a *basic* SAST
+without semantic rules: fast candidate signals over bounded source with honest
+scope limits (no cross-file taint tracking yet, no verdicts), not a claim of
+whole-program proof.
+
 ## Use
 
 1. Launch `src-tauri/target/release/bundle/macos/JAST.app` after building.
