@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JAST — logo options</title>
+<style>
+  :root {
+    --bg: #0b0e12;
+    --panel: #10151c;
+    --border: #1c232d;
+    --foreground: #e5e7eb;
+    --muted: #9aa4b2;
+    --subtle: #748090;
+    --accent: #5aa9e6;
+    --accent-strong: #8bc8f2;
+    --accent-ink: #071723;
+    --amber: #e6b870;
+    --green: #78c7af;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--foreground);
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    padding: 48px 40px 80px;
+  }
+  h1 { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--subtle); margin-bottom: 6px; }
+  .intro { color: var(--muted); font-size: 13px; margin-bottom: 40px; max-width: 560px; line-height: 1.6; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 560px)); gap: 20px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 26px 28px 22px; }
+  .card .tag { font-family: "SFMono-Regular", Consolas, monospace; font-size: 10px; color: var(--accent-strong); letter-spacing: .12em; margin-bottom: 4px; }
+  .card .name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .card .why { color: var(--subtle); font-size: 11.5px; line-height: 1.55; margin-bottom: 22px; max-width: 420px; }
+  .stage { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 26px 24px; display: flex; align-items: center; min-height: 86px; }
+  .stage.small { padding: 14px 18px; min-height: 52px; margin-top: 10px; border-color: #161c25; }
+
+  /* shared wordmark */
+  .wm { font-size: 26px; font-weight: 700; letter-spacing: .12em; color: var(--foreground); }
+  .wm.sm { font-size: 15px; }
+  .sub { color: var(--subtle); font-size: 8px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; margin-left: 10px; }
+  .sub.sm { font-size: 7px; margin-left: 8px; }
+
+  /* A — current: accent split */
+  .a .wm i { color: var(--accent-strong); font-style: normal; }
+
+  /* B — selected region: ST boxed like a drag-selection */
+  .b .box {
+    display: inline-block;
+    border: 1.5px dashed var(--accent);
+    border-radius: 3px;
+    padding: 1px 6px 2px;
+    margin-left: 2px;
+    color: var(--accent-strong);
+    position: relative;
+    background: rgba(90, 169, 230, .08);
+  }
+  .b .box::before, .b .box::after {
+    content: ""; position: absolute; width: 4px; height: 4px;
+    background: var(--accent); border-radius: 1px;
+  }
+  .b .box::before { top: -3px; left: -3px; }
+  .b .box::after { bottom: -3px; right: -3px; }
+
+  /* C — text-selection highlight on ST */
+  .c .hi {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-radius: 2px;
+    padding: 0 5px 1px;
+    margin-left: 1px;
+  }
+
+  /* D — scanline through the mark */
+  .d .wm { position: relative; display: inline-block; }
+  .d .wm::after {
+    content: ""; position: absolute; left: -4px; right: -4px; top: 55%;
+    height: 2px; background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-strong) 50%, var(--accent) 70%, transparent);
+    opacity: .85;
+  }
+  .d .wm i { font-style: normal; color: var(--accent-strong); }
+
+  /* E — ledger bars glyph */
+  .e .glyph { display: inline-flex; flex-direction: column; gap: 3px; margin-right: 11px; transform: translateY(-2px); }
+  .e .glyph i { display: block; height: 3px; border-radius: 1.5px; background: var(--subtle); }
+  .e .glyph i:nth-child(1) { width: 16px; }
+  .e .glyph i:nth-child(2) { width: 22px; background: var(--accent); }
+  .e .glyph i:nth-child(3) { width: 12px; }
+  .e .wm { display: inline-block; }
+
+  /* F — prompt cursor */
+  .f .wm { font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: .04em; font-weight: 600; }
+  .f .cursor {
+    display: inline-block; width: 11px; height: 22px; margin-left: 4px;
+    background: var(--accent); border-radius: 2px; transform: translateY(3px);
+    animation: blink 1.15s steps(1) infinite;
+  }
+  .f .cursor.sm { width: 7px; height: 13px; transform: translateY(2px); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .foot { margin-top: 34px; color: var(--subtle); font-size: 11px; }
+</style>
+</head>
+<body>
+  <h1>JAST · logo directions</h1>
+  <p class="intro">Six directions at real header scale (small stage) and detail scale (large stage). A is the current mark for comparison. The app is a security scanner that marks regions of code for review, so the strongest metaphors are selection, scanning, and the signal ledger.</p>
+
+  <div class="grid">
+    <div class="card a">
+      <div class="tag">A</div>
+      <div class="name">Split color (current)</div>
+      <div class="why">What ships today. JA in ink, ST in accent. Safe, quiet, but it says nothing — the accent half reads as decoration.</div>
+      <div class="stage"><span class="wm">JA<i>ST</i></span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="wm sm">JA<i>ST</i></span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+
+    <div class="card b">
+      <div class="tag">B</div>
+      <div class="name">Selected region</div>
+      <div class="why">ST sits inside a dashed drag-selection box with corner handles — the exact thing the app does to code. Most product-true option; reads instantly to anyone who has used an editor.</div>
+      <div class="stage"><span class="wm">JA<span class="box">ST</span></span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="wm sm">JA<span class="box">ST</span></span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+
+    <div class="card c">
+      <div class="tag">C</div>
+      <div class="name">Text highlight</div>
+      <div class="why">ST rendered as highlighted text — a finding marked in source. Quieter than B, same metaphor, works at favicon size where the dashed box gets muddy.</div>
+      <div class="stage"><span class="wm">JA<span class="hi">ST</span></span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="wm sm">JA<span class="hi">ST</span></span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+
+    <div class="card d">
+      <div class="tag">D</div>
+      <div class="name">Scanline</div>
+      <div class="why">A beam sweeping across the wordmark — the scanner metaphor directly. Distinctive in motion (the line can sweep once on load), slightly busy in static use.</div>
+      <div class="stage"><span class="wm">J<i>A</i>ST</span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="wm sm">J<i>A</i>ST</span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+
+    <div class="card e">
+      <div class="tag">E</div>
+      <div class="name">Signal ledger</div>
+      <div class="why">Three stacked rows, the middle one lit — a triage queue with one finding surfaced. Matches the app's "Signals" vocabulary. Abstract; needs the wordmark beside it to mean anything.</div>
+      <div class="stage"><span class="glyph"><i></i><i></i><i></i></span><span class="wm">JAST</span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="glyph"><i></i><i></i><i></i></span><span class="wm sm">JAST</span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+
+    <div class="card f">
+      <div class="tag">F</div>
+      <div class="name">Prompt cursor</div>
+      <div class="why">Monospace lowercase with a block cursor — reads as a terminal, honest about being a developer tool. Most generic of the six; the blink is the only personality.</div>
+      <div class="stage"><span class="wm">jast<span class="cursor"></span></span><span class="sub">Jev-assisted triage</span></div>
+      <div class="stage small"><span class="wm sm">jast<span class="cursor sm"></span></span><span class="sub sm">Jev-assisted triage</span></div>
+    </div>
+  </div>
+
+  <p class="foot">Recommendation: B or C. Both encode what JAST does — marking a region of code — without inventing a symbol to learn. B is more distinctive, C survives better at 16px favicon size.</p>
+</body>
+</html>

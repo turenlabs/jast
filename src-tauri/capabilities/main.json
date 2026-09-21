@@ -1,0 +1,1 @@
+{"identifier":"main-window","description":"Local JAST window only; no filesystem, shell or HTTP plugins","windows":["main"],"permissions":["core:default"]}

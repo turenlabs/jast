@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "JAST",
+  "version": "0.4.0",
+  "identifier": "ai.jast.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{"label":"main","title":"JAST","width":1320,"height":860,"minWidth":760,"minHeight":560,"backgroundColor":"#101519"}],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'",
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; object-src 'none'; base-uri 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {"active":true,"targets":["app"],"shortDescription":"Jev-assisted source security triage","category":"DeveloperTool","icon":["icons/32x32.png","icons/128x128.png","icons/icon.icns","icons/icon.ico"],"macOS":{"signingIdentity":"-"}}
+}

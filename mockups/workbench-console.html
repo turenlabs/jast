@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JAST mock · D · Workbench Console</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0d11;
+    --surface: #10141a;
+    --raised: #141922;
+    --hover: #1a212c;
+    --fg: #e8ecf1;
+    --muted: #9aa4b2;
+    --subtle: #6e7a8a;
+    --border: #232c38;
+    --border-soft: #1a212b;
+    --accent: #5aa9e6;
+    --accent-strong: #8bc8f2;
+    --accent-muted: #122233;
+    --amber: #e6b870;
+    --amber-muted: #2c2518;
+    --red: #ee8b8b;
+    --green: #78c7af;
+    --radius: 6px;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 13px/1.5 -apple-system, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+    background: var(--bg); color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; }
+  .mono { font-family: var(--mono); }
+
+  /* ---------- chrome: no sidebar, one command bar ---------- */
+  .bar {
+    display: flex; align-items: center; gap: 18px;
+    height: 50px; padding: 0 18px;
+    background: var(--surface); border-bottom: 1px solid var(--border-soft);
+  }
+  .mark { font-weight: 700; letter-spacing: .14em; font-size: 12px; }
+  .mark em { font-style: normal; color: var(--accent-strong); }
+  .tabs {
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius);
+  }
+  .tabs button {
+    min-height: 30px; padding: 5px 14px; border: 0; border-radius: 4px;
+    background: transparent; color: var(--muted); font-size: 12px; font-weight: 550;
+  }
+  .tabs button.on { background: var(--raised); color: var(--fg); box-shadow: inset 0 0 0 1px var(--border); }
+  .tabs button .n { color: var(--subtle); font-family: var(--mono); font-size: 10px; margin-left: 5px; }
+  .bar .spacer { flex: 1; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 4px 10px; border: 1px solid var(--border); border-radius: 99px;
+    font-size: 11px; color: var(--muted);
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .pill.dim .dot { background: var(--amber); }
+  .mock-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    color: var(--subtle); border: 1px dashed var(--border);
+    padding: 3px 8px; border-radius: 99px;
+  }
+
+  /* ---------- workspace ---------- */
+  .work { max-width: 920px; margin: 0 auto; padding: 40px 24px 80px; }
+  .work h1 { margin: 0 0 4px; font-size: 22px; font-weight: 650; letter-spacing: -0.01em; }
+  .work .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 28px; }
+
+  .repo-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .repo-row .path {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-family: var(--mono); font-size: 12px; color: var(--fg);
+  }
+  .repo-row .path small { display: block; color: var(--subtle); font-size: 10px; }
+  .btn {
+    min-height: 34px; padding: 7px 14px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--raised); color: var(--fg); font-weight: 600; font-size: 12px;
+  }
+  .btn:hover { background: var(--hover); }
+  .btn.primary { background: var(--accent-muted); border-color: #2a4a63; color: var(--accent-strong); }
+
+  .section-label {
+    margin: 26px 0 8px; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--subtle);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .section-label .hint { font-size: 10px; letter-spacing: 0; text-transform: none; color: var(--subtle); }
+
+  /* ---------- manifest: the upload inventory is the UI ---------- */
+  .manifest {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden;
+  }
+  .mrow {
+    display: grid; grid-template-columns: 110px 1fr 90px 90px 90px;
+    align-items: center; gap: 12px;
+    padding: 9px 16px; border-bottom: 1px solid var(--border-soft);
+    font-size: 12px;
+  }
+  .mrow:last-child { border-bottom: 0; }
+  .mrow.head { color: var(--subtle); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+  .mrow .lang { color: var(--accent-strong); font-family: var(--mono); font-size: 11px; }
+  .mrow .files { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mrow .num { font-family: var(--mono); font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+  .mrow.total { background: var(--bg); font-weight: 600; }
+  .mrow.excl { color: var(--subtle); }
+  .mrow.excl .num { color: var(--subtle); }
+
+  .warn-row {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 9px 16px; border-top: 1px solid var(--border-soft);
+    color: var(--amber); font-size: 11px; background: var(--amber-muted);
+  }
+
+  /* ---------- consent: the sign-off ---------- */
+  .consent {
+    margin-top: 26px; padding: 18px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .consent .what { font-size: 12px; color: var(--muted); margin-bottom: 12px; max-width: 62ch; }
+  .consent .what b { color: var(--fg); }
+  .consent-foot { display: flex; align-items: center; gap: 14px; }
+  .check { display: flex; align-items: center; gap: 9px; flex: 1; color: var(--muted); font-size: 12px; }
+  .check input { width: 15px; height: 15px; accent-color: var(--accent); }
+  .btn.authorize {
+    min-height: 38px; padding: 8px 18px;
+    background: var(--accent); border-color: var(--accent); color: #061420;
+  }
+
+  /* ---------- history strip ---------- */
+  .hist { display: grid; gap: 0; border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; }
+  .hrow {
+    display: grid; grid-template-columns: 130px 1fr 110px 90px 70px;
+    align-items: center; gap: 12px;
+    padding: 9px 16px; background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--muted); font-size: 11px;
+    text-align: left; border-left: 0; border-right: 0; border-top: 0; border-radius: 0;
+  }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow:hover { background: var(--hover); }
+  .hrow .repo { color: var(--fg); font-weight: 550; }
+  .hrow .num { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .hrow .st { font-size: 10px; }
+  .hrow .st.ok { color: var(--green); }
+  .hrow .st.warn { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="mark">JA<em>ST</em></div>
+  <nav class="tabs" aria-label="Views">
+    <button class="on">Workspace</button>
+    <button>Signals<span class="n">2</span></button>
+    <button>Settings</button>
+  </nav>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>keychain</span>
+  <span class="pill dim">jev-1.13.0</span>
+  <span class="mock-tag">design mock · fixture data</span>
+</header>
+
+<div class="work">
+  <h1>New scan</h1>
+  <p class="sub">Source stays on this machine until you authorize an upload manifest.</p>
+
+  <div class="repo-row">
+    <span class="path">/Users/tom/turen/sample-service<small>git worktree · 3 scans on file</small></span>
+    <button class="btn">Change…</button>
+  </div>
+
+  <div class="section-label">Upload manifest <span class="hint">exactly what will leave this machine</span></div>
+  <div class="manifest">
+    <div class="mrow head">
+      <span>language</span><span>files</span>
+      <span class="num">regions</span><span class="num">bytes</span><span class="num">requests</span>
+    </div>
+    <div class="mrow"><span class="lang">Java</span><span class="files">6 files</span><span class="num">8</span><span class="num">142.1K</span><span class="num">8</span></div>
+    <div class="mrow"><span class="lang">Python</span><span class="files">4 files</span><span class="num">4</span><span class="num">38.7K</span><span class="num">4</span></div>
+    <div class="mrow"><span class="lang">Go</span><span class="files">2 files</span><span class="num">2</span><span class="num">21.0K</span><span class="num">2</span></div>
+    <div class="mrow excl"><span class="lang">excluded</span><span class="files">.env, generated/**, fixtures/**</span><span class="num">-</span><span class="num">-</span><span class="num">-</span></div>
+    <div class="mrow total"><span>total</span><span class="files">12 files · 201.8K source</span><span class="num">14</span><span class="num">201.8K</span><span class="num">14</span></div>
+    <div class="warn-row">⚠ scope cropped by the 500-file limit on a previous preview. This preview is complete.</div>
+  </div>
+
+  <div class="consent">
+    <p class="what">The manifest above is the <b>entire upload</b>. Each of the 14 requests is hashed before send and replayable from the local snapshot. Source, file names and context go to <b>api.typesafe.ai</b>; your key stays in the OS keychain.</p>
+    <div class="consent-foot">
+      <label class="check"><input type="checkbox" checked /> I authorize this upload manifest</label>
+      <button class="btn authorize">Authorize &amp; start scan</button>
+    </div>
+  </div>
+
+  <div class="section-label">Recent scans</div>
+  <div class="hist">
+    <button class="hrow"><span class="repo">sample-service</span><span>Sep 17, 10:46</span><span class="st ok">complete</span><span class="num">14 regions</span><span class="num">7 sig</span></button>
+    <button class="hrow"><span class="repo">stock-picks</span><span>Sep 18, 10:10</span><span class="st ok">complete</span><span class="num">22 regions</span><span class="num">0 sig</span></button>
+    <button class="hrow"><span class="repo">stock-api</span><span>Sep 17, 15:03</span><span class="st warn">interrupted</span><span class="num">9/14 regions</span><span class="num">1 sig</span></button>
+  </div>
+</div>
+
+</body>
+</html>

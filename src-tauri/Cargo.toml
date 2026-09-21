@@ -1,0 +1,41 @@
+[package]
+name = "jast"
+version = "0.4.0"
+edition = "2024"
+description = "Jev-assisted local-workspace security triage desktop app"
+license = "MIT"
+repository = "https://github.com/turenlabs/jast"
+
+[lib]
+name = "jast_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+sha2 = "0.10"
+regex = "1"
+ignore = "0.4"
+globset = "0.4"
+uuid = { version = "1", features = ["v4", "serde"] }
+rfd = "0.15"
+fs2 = "0.4"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "3", features = ["sync-secret-service"] }
+
+[dev-dependencies]
+tempfile = "3"

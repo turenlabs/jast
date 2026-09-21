@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JAST mock · E · Report-first</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #eef0f2;
+    --sheet: #fafbfc;
+    --inset: #f2f4f6;
+    --ink: #1b2430;
+    --ink-soft: #4a5568;
+    --ink-faint: #8a95a4;
+    --rule: #d5dbe2;
+    --rule-soft: #e3e8ed;
+    --accent: #1d5f9e;
+    --accent-soft: #e8f1f9;
+    --amber: #8a6116;
+    --amber-soft: #f8efdd;
+    --red: #a03a3a;
+    --red-soft: #f9eaea;
+    --green: #2e6b57;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --radius: 5px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.55 -apple-system, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+    background: var(--paper); color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; }
+  .mono { font-family: var(--mono); }
+
+  .bar {
+    display: flex; align-items: center; gap: 18px;
+    height: 52px; padding: 0 20px;
+    background: var(--sheet); border-bottom: 1px solid var(--rule);
+  }
+  .mark { font-weight: 700; letter-spacing: .14em; font-size: 12px; }
+  .mark em { font-style: normal; color: var(--accent); }
+  .nav { display: flex; gap: 18px; font-size: 12.5px; }
+  .nav a { color: var(--ink-soft); text-decoration: none; }
+  .nav a.on { color: var(--ink); font-weight: 650; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: -17px; }
+  .nav a .n { color: var(--ink-faint); font-family: var(--mono); font-size: 10px; }
+  .bar .spacer { flex: 1; }
+  .state { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-faint); }
+  .state .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .mock-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    color: var(--ink-faint); border: 1px dashed var(--rule);
+    padding: 3px 8px; border-radius: 99px;
+  }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 44px 24px 80px; }
+  .doc-kind { font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-faint); }
+  .page h1 { margin: 8px 0 4px; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+  .page .sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 30px; }
+
+  .sheet {
+    background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius);
+    padding: 22px 24px; margin-bottom: 20px;
+  }
+  .sheet h2 { margin: 0 0 12px; font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+
+  .field { display: flex; gap: 12px; align-items: center; }
+  .field .val {
+    flex: 1; padding: 9px 12px; background: var(--inset);
+    border: 1px solid var(--rule-soft); border-radius: var(--radius);
+    font-family: var(--mono); font-size: 12px;
+  }
+  .btn {
+    min-height: 34px; padding: 7px 14px;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    background: var(--sheet); color: var(--ink); font-weight: 600; font-size: 12px;
+  }
+  .btn:hover { background: var(--paper); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  table.manifest { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .manifest th {
+    text-align: left; padding: 6px 8px; font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 600;
+    border-bottom: 1px solid var(--rule);
+  }
+  .manifest th.num, .manifest td.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .manifest td { padding: 8px; border-bottom: 1px solid var(--rule-soft); }
+  .manifest tr:last-child td { border-bottom: 0; }
+  .manifest .lang { font-family: var(--mono); font-size: 11.5px; color: var(--accent); }
+  .manifest .dim { color: var(--ink-faint); }
+  .manifest tr.total td { font-weight: 650; border-top: 1.5px solid var(--ink); }
+
+  .sign {
+    border: 1.5px solid var(--ink); border-radius: var(--radius);
+    padding: 18px 20px; background: var(--sheet);
+  }
+  .sign p { margin: 0 0 14px; font-size: 12.5px; color: var(--ink-soft); max-width: 64ch; }
+  .sign p b { color: var(--ink); }
+  .sign-foot { display: flex; align-items: center; gap: 14px; }
+  .sign-foot label { display: flex; align-items: center; gap: 9px; flex: 1; font-size: 12.5px; color: var(--ink); }
+  .sign-foot input { width: 15px; height: 15px; accent-color: var(--accent); }
+
+  .ledger { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .ledger td { padding: 10px 8px; border-bottom: 1px solid var(--rule-soft); }
+  .ledger tr:last-child td { border-bottom: 0; }
+  .ledger .repo { font-weight: 600; }
+  .ledger .when, .ledger .num { color: var(--ink-soft); font-family: var(--mono); font-size: 11.5px; }
+  .ledger .num { text-align: right; }
+  .ledger .st { font-size: 11px; text-align: right; }
+  .ledger .st.ok { color: var(--green); }
+  .ledger .st.warn { color: var(--amber); }
+
+  .note { font-size: 11.5px; color: var(--ink-faint); margin-top: 18px; }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="mark">JA<em>ST</em></div>
+  <nav class="nav">
+    <a class="on" href="#">New scan</a>
+    <a href="#">Reports <span class="n">9</span></a>
+    <a href="#">Settings</a>
+  </nav>
+  <div class="spacer"></div>
+  <span class="state"><span class="dot"></span>keychain · jev-1.13.0</span>
+  <span class="mock-tag">design mock · fixture data</span>
+</header>
+
+<div class="page">
+  <div class="doc-kind">Jev-assisted security triage</div>
+  <h1>Prepare a scan report</h1>
+  <p class="sub">Inventory first, then a signed upload manifest, then candidate signals.</p>
+
+  <section class="sheet">
+    <h2>Source</h2>
+    <div class="field">
+      <span class="val">/Users/tom/turen/sample-service</span>
+      <button class="btn">Choose folder…</button>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <h2>Upload manifest</h2>
+    <table class="manifest">
+      <thead><tr><th>Language</th><th>Files</th><th class="num">Regions</th><th class="num">Source bytes</th><th class="num">Requests</th></tr></thead>
+      <tbody>
+        <tr><td class="lang">Java</td><td>6</td><td class="num">8</td><td class="num">142,090</td><td class="num">8</td></tr>
+        <tr><td class="lang">Python</td><td>4</td><td class="num">4</td><td class="num">38,676</td><td class="num">4</td></tr>
+        <tr><td class="lang">Go</td><td>2</td><td class="num">2</td><td class="num">21,033</td><td class="num">2</td></tr>
+        <tr><td class="dim">excluded</td><td class="dim">3</td><td class="num dim">-</td><td class="num dim">-</td><td class="num dim">-</td></tr>
+        <tr class="total"><td>Total</td><td>12</td><td class="num">14</td><td class="num">201,799</td><td class="num">14</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Requests are hashed before send and replayable from the local snapshot. 2 unsupported files skipped.</p>
+  </section>
+
+  <section class="sign">
+    <p>This manifest is the <b>entire upload</b>. Source, file names and metadata go to <b>api.typesafe.ai</b> over HTTPS. The API key stays in the OS keychain; snapshots stay in this app's data directory.</p>
+    <div class="sign-foot">
+      <label><input type="checkbox" checked /> I authorize this upload manifest</label>
+      <button class="btn primary">Authorize &amp; start scan</button>
+    </div>
+  </section>
+
+  <section class="sheet" style="margin-top:20px">
+    <h2>Previous reports</h2>
+    <table class="ledger">
+      <tr><td class="repo">sample-service</td><td class="when">Sep 17, 10:46</td><td class="num">14 regions</td><td class="num">7 signals</td><td class="st ok">complete</td></tr>
+      <tr><td class="repo">stock-picks</td><td class="when">Sep 18, 10:10</td><td class="num">22 regions</td><td class="num">0 signals</td><td class="st ok">complete</td></tr>
+      <tr><td class="repo">stock-api</td><td class="when">Sep 17, 15:03</td><td class="num">9/14 regions</td><td class="num">1 signal</td><td class="st warn">interrupted</td></tr>
+    </table>
+  </section>
+</div>
+
+</body>
+</html>

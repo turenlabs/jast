@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JAST · UI direction mocks</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0e12; --surface: #11151b; --raised: #151a21; --hover: #18212c;
+    --fg: #e5e7eb; --muted: #9aa4b2; --subtle: #748090;
+    --border: #27303b; --border-soft: #1c242d;
+    --accent: #5aa9e6; --accent-strong: #8bc8f2; --green: #78c7af;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font: 14px/1.55 -apple-system, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+    background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 56px 24px 80px; }
+  .wordmark { font-weight: 700; letter-spacing: .14em; font-size: 13px; }
+  .wordmark em { font-style: normal; color: var(--accent-strong); }
+  h1 { font-size: 24px; margin: 18px 0 8px; letter-spacing: -0.01em; }
+  .lede { color: var(--muted); max-width: 60ch; margin-bottom: 12px; }
+  .lede code { font-family: var(--mono); font-size: 12px; color: var(--accent-strong); }
+  .group-label {
+    margin: 36px 0 12px; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--subtle);
+  }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    border: 1px solid var(--border-soft); border-radius: 8px;
+    background: var(--surface); padding: 20px 22px; margin-bottom: 14px;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  a.card:hover { background: var(--raised); border-color: var(--border); }
+  .card .label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--subtle); margin-bottom: 6px;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .card .label .built { color: var(--green); letter-spacing: .06em; }
+  .card h2 { margin: 0 0 6px; font-size: 16px; font-weight: 650; }
+  .card h2 .go { color: var(--accent-strong); font-weight: 400; }
+  .card p { margin: 0; font-size: 13px; color: var(--muted); }
+  .card .meta {
+    margin-top: 10px; font-family: var(--mono); font-size: 10.5px; color: var(--subtle);
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .foot { margin-top: 36px; font-size: 11.5px; color: var(--subtle); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="wordmark">JA<em>ST</em></div>
+  <h1>UI directions</h1>
+  <p class="lede">Static mocks, same fixture scan (<code>sample-service</code>, snapshot <code>9f2c1a4b</code>). Fixture data throughout; nothing here is a real finding.</p>
+
+  <div class="group-label">Whole-app revamp (new)</div>
+
+  <a class="card" href="workbench-console.html">
+    <div class="label">Direction D</div>
+    <h2>Workbench Console <span class="go">→</span></h2>
+    <p>Kills the sidebar. One command bar, and the upload manifest becomes the workspace: a table of exactly what leaves the machine, a sign-off block for consent, scan history as a ledger strip. The privacy contract becomes the layout.</p>
+    <div class="meta"><span>primary object: the manifest</span><span>density: medium</span><span>theme: dark</span></div>
+  </a>
+
+  <a class="card" href="report-light.html">
+    <div class="label">Direction E</div>
+    <h2>Report-first <span class="go">→</span></h2>
+    <p>Light, document tone app-wide. "Prepare a scan report": the workspace reads as a form sheet with a bordered manifest table and a ruled sign-off block. Every other scanner is a dark terminal; this one is a report generator.</p>
+    <div class="meta"><span>primary object: the document</span><span>density: low</span><span>theme: light</span></div>
+  </a>
+
+  <a class="card" href="session-spine.html">
+    <div class="label">Direction F</div>
+    <h2>Session Spine <span class="go">→</span></h2>
+    <p>The app as a pipeline: stage rail on the left (Inventory → Authorize → Scan → Review), and the scan state is a live request ledger showing every hash-bound request as it commits, with signals emerging in the right column.</p>
+    <div class="meta"><span>primary object: the session</span><span>density: high</span><span>theme: dark</span></div>
+  </a>
+
+  <div class="group-label">Findings view (earlier round)</div>
+
+  <a class="card" href="triage-ledger.html">
+    <div class="label">Direction A</div>
+    <h2>Triage Ledger <span class="go">→</span></h2>
+    <p>Analyst queue. Worklist sorted by priority weight; every row carries its evidence sliver, a sink→source chain, and honest state tags. Pinned inspector right.</p>
+    <div class="meta"><span>primary object: the queue</span><span>density: high</span><span>theme: dark</span></div>
+  </a>
+
+  <a class="card" href="source-window.html">
+    <div class="label">Direction B · <span class="built">built</span></div>
+    <h2>Source Window <span class="go">→</span></h2>
+    <p>Code-first. Real source with sink/source gutter marks, region-boundary tags, a coverage strip showing exactly what the model saw, and an assessment dock. Currently implemented in the app.</p>
+    <div class="meta"><span>primary object: the evidence</span><span>density: medium</span><span>theme: dark</span></div>
+  </a>
+
+  <a class="card" href="case-file.html">
+    <div class="label">Direction C</div>
+    <h2>Case File <span class="go">→</span></h2>
+    <p>The dossier. A scan rendered as a document: provenance header, numbered entries, excerpts, investigation outcomes. What Export could feel like.</p>
+    <div class="meta"><span>primary object: the report</span><span>density: low</span><span>theme: light</span></div>
+  </a>
+
+  <p class="foot">jast/mockups · design mocks · fixture data</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JAST mock · B · Source Window</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0e12;
+    --surface: #11151b;
+    --raised: #151a21;
+    --hover: #18212c;
+    --code-bg: #0d1117;
+    --fg: #e5e7eb;
+    --muted: #9aa4b2;
+    --subtle: #748090;
+    --border: #27303b;
+    --border-soft: #1c242d;
+    --accent: #5aa9e6;
+    --accent-strong: #8bc8f2;
+    --accent-muted: #132638;
+    --amber: #e6b870;
+    --amber-muted: #2c2518;
+    --red: #ee8b8b;
+    --red-muted: #2b191c;
+    --green: #78c7af;
+    --radius: 7px;
+    --radius-sm: 5px;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 13px/1.45 -apple-system, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+    background: var(--bg); color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; }
+  .mono { font-family: var(--mono); }
+
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 16px; background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .wordmark { font-weight: 700; letter-spacing: .14em; font-size: 12px; }
+  .wordmark em { font-style: normal; color: var(--accent-strong); }
+  .crumbs { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+  .crumbs .sep { color: var(--subtle); }
+  .crumbs .sha { font-family: var(--mono); font-size: 11px; color: var(--subtle); }
+  .topbar .spacer { flex: 1; }
+  .btn {
+    min-height: 32px; padding: 6px 12px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--raised); color: var(--fg); font-weight: 600; font-size: 12px;
+  }
+  .btn:hover { background: var(--hover); }
+  .btn.primary { background: var(--accent-muted); border-color: #2a4a63; color: var(--accent-strong); }
+  .mock-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+    color: var(--subtle); border: 1px dashed var(--border);
+    padding: 3px 8px; border-radius: 99px;
+  }
+
+  .workbench { display: grid; grid-template-columns: 240px minmax(0, 1fr) 14px; min-height: calc(100vh - 96px); }
+
+  /* ---------- findings rail ---------- */
+  .rail { border-right: 1px solid var(--border-soft); background: var(--bg); overflow-y: auto; }
+  .rail-head {
+    padding: 10px 12px 8px; font-size: 10.5px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--subtle);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .rgroup { padding: 8px 0 4px; }
+  .rgroup-name {
+    padding: 4px 12px; font-family: var(--mono); font-size: 10.5px; color: var(--subtle);
+    display: flex; justify-content: space-between;
+  }
+  .rrow {
+    display: block; width: 100%; text-align: left;
+    padding: 7px 12px; background: none; border: none;
+    border-left: 2px solid transparent;
+    font-size: 12px; color: var(--fg);
+  }
+  .rrow:hover { background: var(--surface); }
+  .rrow.sel { background: var(--surface); border-left-color: var(--accent); }
+  .rrow .rmeta {
+    display: flex; align-items: center; gap: 6px; margin-top: 3px;
+    font-family: var(--mono); font-size: 10px; color: var(--subtle);
+  }
+  .rrow .cat { font-size: 12px; }
+  .rrow.dim { opacity: .55; }
+  .bdot { width: 6px; height: 6px; border-radius: 99px; flex-shrink: 0; }
+  .bdot.hi { background: var(--red); }
+  .bdot.md { background: var(--amber); }
+  .bdot.lo { background: var(--subtle); }
+
+  /* ---------- source pane ---------- */
+  .source { display: flex; flex-direction: column; background: var(--code-bg); }
+  .file-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 18px; border-bottom: 1px solid var(--border-soft);
+    background: var(--surface);
+  }
+  .file-head .path { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .file-head .fmeta { font-size: 11px; color: var(--subtle); }
+  .file-head .spacer { flex: 1; }
+  .file-head .tab {
+    font-size: 11px; color: var(--muted); padding: 4px 10px;
+    border: 1px solid var(--border); border-radius: 99px; background: none;
+  }
+  .file-head .tab.on { border-color: #2a4a63; color: var(--accent-strong); background: var(--accent-muted); }
+
+  /* region markers inside the code */
+  .region-tag {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 18px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .05em;
+    color: var(--subtle);
+    border-top: 1px dashed var(--border);
+    border-bottom: 1px dashed var(--border);
+    background: rgba(90,169,230,.03);
+  }
+  .region-tag.first { border-top: none; }
+  .region-tag .tick { color: var(--accent); }
+
+  pre.code { margin: 0; padding: 8px 0 16px; overflow: auto; font-family: var(--mono); font-size: 12px; line-height: 1.65; }
+  .cl { display: flex; padding-right: 18px; }
+  .cl .g {
+    width: 58px; flex-shrink: 0; text-align: right; padding-right: 14px;
+    color: var(--subtle); user-select: none; position: relative;
+  }
+  .cl .t { white-space: pre; color: #c9d4e0; }
+  .cl.dim .t { color: var(--subtle); }
+  .cl.reviewed .g { color: var(--muted); }
+  .cl.src-line { background: rgba(90,169,230,.07); }
+  .cl.src-line .g::after {
+    content: "src"; position: absolute; left: 6px;
+    font-size: 8.5px; letter-spacing: .06em; color: var(--accent); top: 4px;
+  }
+  .cl.sink-line { background: rgba(238,139,139,.08); }
+  .cl.sink-line .g::after {
+    content: "sink"; position: absolute; left: 4px;
+    font-size: 8.5px; letter-spacing: .06em; color: var(--red); top: 4px;
+  }
+  .cl.finding-line { box-shadow: inset 2px 0 0 var(--amber); }
+  .kw { color: #c792ea; } .str { color: #9ece8a; } .fn { color: var(--accent-strong); }
+  .cm { color: #5c6773; } .num { color: var(--amber); }
+
+  /* ---------- coverage strip (minimap) ---------- */
+  .covmap {
+    border-left: 1px solid var(--border-soft);
+    background: var(--surface);
+    position: relative;
+  }
+  .covmap .seg {
+    position: absolute; left: 3px; right: 3px;
+    border-radius: 2px; background: var(--border);
+  }
+  .covmap .seg.reviewed { background: #2a4a63; }
+  .covmap .seg.finding { background: var(--red); }
+  .covmap .seg.ctx { background: var(--amber); opacity: .8; }
+  .covmap .cap {
+    position: absolute; bottom: 8px; left: 0; right: 0;
+    text-align: center; font-size: 8px; color: var(--subtle);
+    writing-mode: vertical-rl; transform: rotate(180deg);
+  }
+
+  /* ---------- assessment dock ---------- */
+  .dock {
+    display: flex; align-items: stretch; gap: 0;
+    border-top: 1px solid var(--border-soft); background: var(--surface);
+  }
+  .dock-id {
+    padding: 12px 16px; border-right: 1px solid var(--border-soft);
+    display: flex; flex-direction: column; gap: 2px; min-width: 210px;
+  }
+  .dock-id .cat { font-weight: 650; font-size: 13px; }
+  .dock-id .loc { font-family: var(--mono); font-size: 10.5px; color: var(--subtle); }
+  .dock-score {
+    padding: 10px 14px; border-right: 1px solid var(--border-soft);
+    display: flex; flex-direction: column; gap: 2px; justify-content: center; min-width: 92px;
+  }
+  .dock-score .v { font-family: var(--mono); font-size: 15px; font-variant-numeric: tabular-nums; }
+  .dock-score .k { font-size: 9.5px; color: var(--subtle); text-transform: uppercase; letter-spacing: .04em; }
+  .dock-score .v.warn { color: var(--amber); }
+  .dock-chain {
+    flex: 1; padding: 10px 16px; display: flex; flex-direction: column; gap: 4px; justify-content: center;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .dock-chain .row { display: flex; gap: 8px; }
+  .dock-chain .role { width: 44px; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding-top: 2px; }
+  .dock-chain .role.sink { color: var(--red); } .dock-chain .role.src { color: var(--accent); }
+  .dock-actions {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  }
+
+  .statusbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 7px 16px; font-size: 11px; color: var(--subtle);
+    border-top: 1px solid var(--border-soft); background: var(--surface);
+  }
+  .statusbar .ok { color: var(--green); }
+  .statusbar .spacer { flex: 1; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wordmark">JA<em>ST</em></div>
+  <div class="crumbs">
+    <span>sample-service</span><span class="sep">/</span>
+    <span>scan #14</span><span class="sep">/</span>
+    <span class="sha">snapshot 9f2c1a4b</span>
+  </div>
+  <div class="spacer"></div>
+  <span class="mock-tag">design mock · fixture data</span>
+  <button class="btn">Rescan</button>
+  <button class="btn primary">Export</button>
+</header>
+
+<div class="workbench">
+
+  <nav class="rail" aria-label="Signals">
+    <div class="rail-head">Signals · 7</div>
+    <div class="rgroup">
+      <div class="rgroup-name"><span>UserRepository.java</span><span>2</span></div>
+      <button class="rrow sel">
+        <span class="cat">SQL injection</span>
+        <span class="rmeta"><span class="bdot hi"></span>L40-55 · p 0.87 · pw 0.81</span>
+      </button>
+      <button class="rrow dim">
+        <span class="cat">SQL injection</span>
+        <span class="rmeta"><span class="bdot lo"></span>L48-62 · overlaps #1</span>
+      </button>
+    </div>
+    <div class="rgroup">
+      <div class="rgroup-name"><span>FileServe.java</span><span>1</span></div>
+      <button class="rrow">
+        <span class="cat">Path traversal</span>
+        <span class="rmeta"><span class="bdot md"></span>L88-104 · p 0.61</span>
+      </button>
+    </div>
+    <div class="rgroup">
+      <div class="rgroup-name"><span>JobQueue.java</span><span>1</span></div>
+      <button class="rrow">
+        <span class="cat">Unsafe deserialization</span>
+        <span class="rmeta"><span class="bdot md"></span>L200-230 · p 0.55</span>
+      </button>
+    </div>
+    <div class="rgroup">
+      <div class="rgroup-name"><span>config.py</span><span>1</span></div>
+      <button class="rrow">
+        <span class="cat">Hardcoded secret</span>
+        <span class="rmeta"><span class="bdot hi"></span>L12-18 · p 0.91</span>
+      </button>
+    </div>
+    <div class="rgroup">
+      <div class="rgroup-name"><span>comment.jsp</span><span>1</span></div>
+      <button class="rrow">
+        <span class="cat">XSS</span>
+        <span class="rmeta"><span class="bdot lo"></span>L112-140 · ctx 0.68</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="source">
+    <div class="file-head">
+      <span class="path">src/main/java/app/UserRepository.java</span>
+      <span class="fmeta">3 regions · 61 lines · 18.4 KiB reviewed</span>
+      <span class="spacer"></span>
+      <button class="tab on">source</button>
+      <button class="tab">outline</button>
+      <button class="tab">coverage</button>
+    </div>
+
+    <div class="region-tag first"><span class="tick">▸ region 1/3 · L1-38 · assessed, no signals</span></div>
+    <pre class="code"><div class="cl dim"><span class="g">1</span><span class="t"><span class="kw">package</span> app;</span></div><div class="cl dim"><span class="g">2</span><span class="t"></span></div><div class="cl dim"><span class="g">3</span><span class="t"><span class="kw">import</span> java.sql.*;</span></div><div class="cl dim"><span class="g">4</span><span class="t"><span class="kw">import</span> javax.servlet.http.*;</span></div><div class="cl dim"><span class="g">5</span><span class="t"></span></div><div class="cl dim"><span class="g">12</span><span class="t"><span class="kw">public class</span> <span class="fn">UserRepository</span> {</span></div><div class="cl dim"><span class="g">14</span><span class="t">  <span class="kw">private final</span> Connection conn;</span></div><div class="cl dim"><span class="g">18</span><span class="t">  <span class="cm">// … CRUD helpers elided in this view …</span></span></div></pre>
+
+    <div class="region-tag"><span class="tick">▸ region 2/3 · L40-88 · 1 signal · impact 3/3</span></div>
+    <pre class="code"><div class="cl reviewed finding-line"><span class="g">40</span><span class="t">  <span class="kw">public</span> List&lt;User&gt; <span class="fn">findByName</span>(HttpServletRequest request) {</span></div><div class="cl reviewed"><span class="g">41</span><span class="t">    String q = <span class="str">"SELECT * FROM users WHERE name = '"</span>;</span></div><div class="cl reviewed"><span class="g">42</span><span class="t"></span></div><div class="cl reviewed src-line"><span class="g">47</span><span class="t">    q += request.<span class="fn">getParameter</span>(<span class="str">"u"</span>) + <span class="str">"'"</span>;</span></div><div class="cl reviewed"><span class="g">48</span><span class="t">    Statement statement = conn.<span class="fn">createStatement</span>();</span></div><div class="cl reviewed"><span class="g">49</span><span class="t"></span></div><div class="cl reviewed sink-line"><span class="g">52</span><span class="t">    ResultSet rs = statement.<span class="fn">executeQuery</span>(q);</span></div><div class="cl reviewed"><span class="g">53</span><span class="t">    <span class="kw">return</span> <span class="fn">map</span>(rs);</span></div><div class="cl reviewed"><span class="g">55</span><span class="t">  }</span></div><div class="cl reviewed"><span class="g">58</span><span class="t">  <span class="kw">public void</span> <span class="fn">deleteById</span>(<span class="kw">long</span> id) {</span></div><div class="cl reviewed"><span class="g">60</span><span class="t">    conn.<span class="fn">prepareStatement</span>(<span class="str">"DELETE FROM users WHERE id = ?"</span>);</span></div></pre>
+
+    <div class="region-tag"><span class="tick">▸ region 3/3 · L62-101 · assessed, no signals · overlaps region 2</span></div>
+    <pre class="code"><div class="cl dim"><span class="g">64</span><span class="t">  <span class="cm">// prepared-statement path, model judged safe</span></span></div><div class="cl dim"><span class="g">70</span><span class="t">  <span class="kw">private</span> List&lt;User&gt; <span class="fn">map</span>(ResultSet rs) { … }</span></div><div class="cl dim"><span class="g">96</span><span class="t">}</span></div></pre>
+  </main>
+
+  <div class="covmap" aria-hidden="true">
+    <div class="seg reviewed" style="top:2%;height:36%"></div>
+    <div class="seg finding" style="top:38%;height:24%"></div>
+    <div class="seg reviewed" style="top:62%;height:36%"></div>
+    <div class="cap">coverage · UserRepository.java</div>
+  </div>
+</div>
+
+<div class="dock">
+  <div class="dock-id">
+    <span class="cat">SQL injection <span style="color:var(--red);font-size:11px">strong</span></span>
+    <span class="loc">UserRepository.java:40-55 · region 2/3</span>
+  </div>
+  <div class="dock-score"><span class="v">0.87</span><span class="k">probability</span></div>
+  <div class="dock-score"><span class="v">3/3</span><span class="k">impact</span></div>
+  <div class="dock-score"><span class="v warn">0.12</span><span class="k">ctx missing</span></div>
+  <div class="dock-score"><span class="v">0.81</span><span class="k">priority</span></div>
+  <div class="dock-chain">
+    <div class="row"><span class="role src">source</span><span>request.getParameter · L47</span></div>
+    <div class="row"><span class="role sink">sink</span><span>statement.executeQuery · L52</span></div>
+  </div>
+  <div class="dock-actions">
+    <button class="btn primary">Investigate</button>
+    <button class="btn">Dismiss</button>
+  </div>
+</div>
+
+<footer class="statusbar">
+  <span class="ok">keychain connected</span>
+  <span>jev-1.13.0 · api.typesafe.ai</span>
+  <span class="spacer"></span>
+  <span>only reviewed regions ever left this machine · findings are candidates, not verdicts</span>
+</footer>
+
+</body>
+</html>
