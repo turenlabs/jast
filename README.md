@@ -1,27 +1,30 @@
 # JAST Desktop
 
-A multi-language, local-workspace desktop app for Jev-assisted security triage.
-Built with Rust, Tauri 2, React and TypeScript. No AST and no execution of
-repository code, build scripts, hooks or dependencies.
+JAST is an experimental SAST (static application security testing) desktop app
+that uses TypeSafe AI's Jev System One model. It differs from traditional SAST
+in that it does not require semantic rules: instead of a rule library, JAST asks
+Jev explicit, reviewable questions about bounded source regions. Rust owns every
+deterministic mechanic: inventory, region bounds, hashing, consent and
+persistence.
 
-## Why
+Jev is a general-purpose classifier. It evaluates structured state against typed
+questions and returns probabilities, so it can supply the judgment a rule would
+otherwise have to encode. On the OWASP Java Benchmark, this approach has reached
+a Youden's J close to 80% with correct prompts; that is not what the app
+achieves today. Findings are candidate signals, not verdicts.
 
-Conventional SAST encodes vulnerability knowledge as semantic rules: queries and
-patterns hand-written per language, framework, and weakness class. That works
-well for syntax-shaped bugs and badly for judgment-shaped ones — whether
-attacker-controlled data reaches a sink unsafely depends on the value's origin,
-the branch that selected it, the wrapper around it, and whether the defense
-protects the *actual* use. Encoding that as rules is where SAST gets expensive.
+## Building JAST
 
-Jev is a general-purpose classifier, not a code model: it evaluates structured
-state against typed questions and returns probabilities, so it can supply the
-semantic judgment a rule would otherwise have to encode. JAST keeps every
-deterministic mechanic in Rust — inventory, region bounds, hashing, consent,
-persistence — and asks Jev explicit, human-reviewable questions with explicit
-criteria instead of shipping a rule library. The result is a *basic* SAST
-without semantic rules: fast candidate signals over bounded source with honest
-scope limits (no cross-file taint tracking yet, no verdicts), not a claim of
-whole-program proof.
+```sh
+npm ci                                                          # frontend deps
+cargo test --locked --manifest-path src-tauri/Cargo.toml --lib  # backend tests
+npm run build                                                   # typecheck + vite dist/
+npm run tauri -- build --bundles app                            # macOS bundle
+```
+
+`./build.sh` runs the full verification suite plus the bundle in one step.
+Requires Rust, Node, and platform Tauri prerequisites. Only macOS is
+build/launch-tested.
 
 ## Use
 
@@ -166,11 +169,11 @@ necessary to make progress within the byte budget). The initial scan embeds boun
 same-repository context: a region that names another included source file's
 stem (e.g. `helpers.Util`) or a configuration file's name (`.properties`,
 `.xml`, `.yaml`, `.toml`, `.ini`, `.cfg`, `.conf`, `.json`; never lockfiles or
-`.env`) receives that file's full text as `state.helpers` — at most 4 helpers,
+`.env`) receives that file's full text as `state.helpers`, at most 4 helpers,
 16 KiB each, 48 KiB per request, deterministically selected and hashed into the
 request. It is name-reference retrieval, not a resolved call graph: external
 libraries, unreferenced files and anything excluded stay absent. **Cross-file
-taint tracking is not supported yet** — helpers show referenced file text, but
+taint tracking is not supported yet**: helpers show referenced file text, but
 nothing traces a value's flow from one file into a sink in another. Explicit
 investigation can select partial excerpts from already captured source, but
 never reads omitted files or resolves a complete call graph. Overlap may produce
@@ -229,17 +232,9 @@ before local commit can repeat that request on resume: exactly-once billing is n
 claimed. Changing/removing credentials while scanning is rejected. Export captures
 summary, findings and raw chunks under one database lock for a coherent snapshot.
 
-## Develop and Build
+## Develop
 
-From the repository root:
-
-```sh
-npm ci
-npm run tauri -- dev
-./build.sh    # verify + macOS bundle, or npm run tauri -- build --bundles app
-```
-
-Requires Rust, Node, and platform Tauri prerequisites. The check catalogue and
+Run a development build with `npm run tauri -- dev`. The check catalogue and
 language guidance live in `src-tauri/src/scanner/profiles.rs`; the app no longer
 depends on the benchmark question file. The compiled desktop bundle is
 self-contained. The macOS app uses
@@ -285,4 +280,4 @@ an automatic second pass and not a claim of independent vulnerability verificati
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
